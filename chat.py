@@ -1,48 +1,67 @@
-import os
-import sys
+import pandas as pd
+from openai import OpenAI
 
-import openai
-from langchain_community.vectorstores import Chroma
-from langchain_community.document_loaders import DirectoryLoader, CSVLoader
-from langchain_openai import OpenAIEmbeddings
-import constants
+client = OpenAI(
+	api_key=""
+)
 
-os.environ["OPENAI_API_KEY"] = constants.APIKEY
+GPT35 = "gpt-3.5-turbo"
+GPT4 = "gpt-4-turbo-preview"
 
-# Enable to save to disk & reuse the model (for repeated queries on the same data)
-PERSIST = True
+# df = pd.read_csv("data/Normal.csv", index_col=0)
+# df["Time"] = pd.to_datetime(df["Time"]).dt.strftime("%H:%M:%S.%f")
+# train_data = df.to_csv(header=True, index=False)
+with open("data/Normal.csv", "r") as f:
+	train_data = f.read()
+recommendations = \
+	"""
+	I present you the data injection (DI) attack, denial-of-
+	service (DoS) attack, network error (NE), and replay (RE)
+	attack for GOOSE communications. 
 
-# Check if a query is passed as a command-line argument
-if len(sys.argv) > 1:
-    query = sys.argv[1]
-else:
-    query = None
+	These attacks can be described as follows. A failure to satisfy at least one
+	recommendation leads to the relevant attack.
 
-# Load training data
-training_loader = DirectoryLoader("data/", show_progress=True)
-training_documents = training_loader.load()
+	Attacks/errors on GOOSE datasets:
+    - DI (Data Injection): If data has the same “DM” and “SM,” “sqNum” should be increased in the next row every time.
+    - DI: If there is any change in “Data_1” or “Data_2,” “stNum” should be increased by 1 and 
+            “sqNum” should be reset to 0.
+    - DI: If data has the same “DM” and “SM,” once “stNum”is increased, it cannot go back to smaller numbers.
+    - DoS (Denial-of-Service): There are up to 10 packets (rows) within 10 ms.
+    - System Problem: There should be a packet (dataset) within 10s.
+    - RE (Replay Attack): If there is any change in “Data_1” or “Data_2,” “stNum” should be increased 1 and 
+            “sqNum” should be reset to 0.
+    """
 
-# Load test data
-test_loader = CSVLoader(r"data/Attack/Data Manipulation (DM)/AS1.csv")
-test_documents = test_loader.load()
+gpt_msgs = [
+	{"role": "system", "content": "You will detect anomalies in GOOSE messages given anomaly recommendations. "
+	                              "Reply with either 'DI', 'DoS', 'System Problem', 'RE' or 'Other' depending on "
+	                              "the type of anomaly. If there is no anomaly, reply with 'Normal'. "
+	                              "Explain your reasoning in one sentence only, stating "
+	                              "in which line the violation happened."},
+	{"role": "user", "content": f"Here are the anomaly recommendations: {recommendations}\nHere is an example of "
+	                            f"a normal dataset with no anomalies, "
+	                            f"containing 11 columns and 10 rows:\n{train_data}"}
+]
+response = client.chat.completions.create(
+	model=GPT35,
+	messages=gpt_msgs
+)
+results = response.choices[0].message.content
 
-# Ingest training data into the vectorstore
-if PERSIST and os.path.exists("persist"):
-    print("Reusing index...\n")
-    vectorstore = Chroma(persist_directory="persist", embedding_function=OpenAIEmbeddings())
-else:
-    vectorstore = Chroma.from_documents(training_documents, OpenAIEmbeddings(), persist_directory="persist")
+print(results)
 
-# Assuming you have a way to load your test file content into a query variable
-# For demonstration, let's use a placeholder query
-query = "Detect if there are any anomalies with this GOOSE file. If there are, tell me if it is an attack or " \
-        "error and what kind it is. "
-
-# Perform the search
-results = vectorstore.search(query, k=1)  # Set k to 1 to get only one result
-
-# Assuming you want to print the most relevant document's text
-if results:
-    print(results[0]['text'])
-else:
-    print("No results found.")
+while True:
+	query = input("Prompt: ")
+	if query == "q" or query == "quit":
+		break
+	gpt_msgs.append(
+		{"role": "user",
+		 "content": query}
+	)
+	resp = client.chat.completions.create(
+		model=GPT35,
+		messages=gpt_msgs
+	)
+	res = resp.choices[0].message.content
+	print(res)
