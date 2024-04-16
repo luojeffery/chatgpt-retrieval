@@ -64,4 +64,8 @@ while True:
 		messages=gpt_msgs
 	)
 	res = resp.choices[0].message.content
+	gpt_msgs.append(
+		{"role": "assistant",
+		 "content": res}
+	)
 	print(res)
