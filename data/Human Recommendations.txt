@@ -1,0 +1,22 @@
+I present you the data injection (DI) attack, denial-of-
+service (DoS) attack, network error (NE), and replay (RE)
+attack for GOOSE communications. 
+
+These attacks can be described as follows. A failure to satisfy at least one
+recommendation leads to the relevant attack.
+
+Attacks/errors on GOOSE datasets:
+- DI: If data has the same “DM” and “SM,” “sqNum”
+should be increased every time.
+- DI: If there is any change in “data1” or “data2,”
+“stNum” should be increased by 1 and “sqNum” should
+be reset to 0.
+- DI: If the data has the same “DM” and “SM,” once
+“stNum” is increased, it cannot go back to a smaller
+number.
+- DoS: There are up to 10 packets (rows) within 10
+microseconds.
+- NE: There should be a packet (dataset) within 10 s.
+- RE: If there is any change in “data1” or “data2,”
+“stNum” should be increased 1 and “sqNum” should be
+reset to 0.
