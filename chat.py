@@ -36,11 +36,11 @@ gpt_msgs = [
 	{"role": "system", "content": """You will detect anomalies in patterns in sets of GOOSE messages, you will be given 
 										anomaly recommendations. You will need to follow the instructions for the
 										recommendations-- if you need to check a field on then next row for something, 
-										you need to do that. If a pattern shows up that matches something in the recommendations, then you need to 
-										acknowledge that you've found an anomaly. Reply with either 'MS', 'DoS', 
-										'System Problem', 'RE' or 'Other' depending on the type of anomaly. If there is 
-										no anomaly, reply with 'Normal'. Fully explain your reasoning, stating in 
-										which line the violation happened."""},
+										you need to do that. If a pattern shows up that matches something in the
+										recommendations, then you need to acknowledge that you've found an anomaly. 
+										Reply with either 'MS', 'DoS', 'System Problem', 'RE' or 'Other' depending 
+										on the type of anomaly. If there is no anomaly, reply with 'Normal'. Fully 
+										explain your reasoning, stating in which line the violation happened."""},
 	{"role": "user", "content": f"""Here are the anomaly recommendations while analyzing each line:\n{recommendations}
 										Here is a dataset with GOOSE messages to analyze:\n{train_data} Look at the 
 										context of the previous lines when checking for anomalies. If you detect an 
@@ -59,6 +59,7 @@ gpt_msgs.append(
 	{"role": "assistant",
 	 "content": results}
 )
+
 print(results)
 
 while True:
@@ -74,7 +75,6 @@ while True:
 		messages=gpt_msgs
 	)
 	res = resp.choices[0].message.content
-
 	gpt_msgs.append(
 		{"role": "assistant",
 		 "content": res}
