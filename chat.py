@@ -4,7 +4,6 @@ import shutil
 import textwrap
 from tqdm import tqdm
 
-
 def get_terminal_columns():
 	return shutil.get_terminal_size().columns
 
@@ -61,11 +60,12 @@ def main():
 		Attacks/errors on GOOSE datasets:
 	    - MS: the stNum value is higher or slightly higher than the previously recorded stNum, 
 	    and sqNum is not 0.
-	    - MS: Replaying a previously valid GOOSE frame that contains a high stNum and sqNum is 0, but has a stale timestamp.
-	    - MS: When a frame has a high stNum and sqNum is 0, and there is a valid timestamp.
+	    - MS: Replaying a previously valid GOOSE frame that contains a high stNum and sqNum is 0, but the timestamp is 
+	    not in chronological order with previous or next lines.
+	    - MS: When a frame has a high stNum and sqNum is 0.
 	    - MS: When a frame has a high sqNum causes GOOSE frames to arrive at the receiver out of sequence.
-	    - DoS: Up to 10 packets are sent within 10 ms.
-	    - NE: There should be a packet (dataset) within 10s.
+	    - DoS: 10 or more packets are sent within 10 ms.
+	    - NE: Timestamps that are more than 10s apart.
 	    """
 
 	gpt_msgs.extend([
@@ -122,5 +122,5 @@ def main():
 
 
 if __name__ == "__main__":
-	filename = r"data\AS1.csv"
+	filename = r"data\MS_short.csv"
 	main()
