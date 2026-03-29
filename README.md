@@ -1,6 +1,6 @@
 # chatgpt-retrieval
 
-Simple script to use ChatGPT on your own files.
+Simple script to use ChatGPT on your own files. This code was the basis for our paper, _LLM-based Anomaly Detection for Digital Substation Cybersecurity_ in IEEE HONET 2025.
 
 Here's the [YouTube Video](https://youtu.be/9AXP7tCI9PI).
 
